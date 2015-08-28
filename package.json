@@ -1,0 +1,17 @@
+{
+  "name": "angular-options-select",
+  "version": "0.0.1",
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jade": "~0.8.0",
+    "grunt-contrib-stylus": "^0.20.0",
+    "grunt-string-replace": "^1.2.0"
+  },
+  "keywords": [
+    "angularjs",
+    "select",
+    "widget"
+  ],
+  "licence": "MIT"
+}

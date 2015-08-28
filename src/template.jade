@@ -1,0 +1,47 @@
+div.os-container
+    div.os-header(
+                  ng-click="toggleList()"
+                  ng-class="getHeaderClass()"
+                  )
+        span(ng-show="!showList") {{ optionsPlaceholder }}
+        span(ng-show="showList") OK
+    div.os-list-container(ng-show="showList")
+        div.os-search
+            div.os-search-icon
+                div
+                div
+            input.os-search-input(ng-model="search.name")
+        div.os-list
+            ul
+                li(
+                    ng-repeat="option in optionsTempData | filter:search"
+                    class="os-animate-repeat"
+                    ng-class="getOptionClass(option)"
+                )
+                    span.os-button.os-select(ng-click="addToSelectedList(option)") +
+                    span.os-button.os-deselect(ng-click="addToDeselectedList(option)") -
+                    span.os-option-name(
+                                        ng-bind="option.name"
+                                        title="{{ option.name }}"
+                                        )
+    div.os-chosen-list(ng-show="!showList && (optionsSelected.length!=0 || optionsDeselected.length!=0)")
+        ul
+            li(
+                ng-repeat="option in optionsSelected"
+                ng-click="removeFromList(option, true)"
+            )
+                span.os-list-icon.os-plus-icon +
+                span(
+                    ng-bind="option"
+                    title="{{ option }}"
+                )
+        ul
+            li(
+                ng-repeat="option in optionsDeselected"
+                ng-click="removeFromList(option, false)"
+            )
+                span.os-list-icon.os-minus-icon -
+                span(
+                    ng-bind="option"
+                    title="{{ option }}"
+                )
