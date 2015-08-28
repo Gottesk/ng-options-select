@@ -19,11 +19,15 @@
                 },
                 template: '{html}',
                 link: function (scope) {
-                    scope.showList = false;
 
+                    scope.showList = false;
                     scope.toggleList = function() {
                         scope.showList = !scope.showList;
                     };
+
+                    if (!scope.optionsDeselected) {
+                        scope.multiSelect = true;
+                    }
 
                     scope.optionsTempData = [];
 

@@ -19,13 +19,16 @@ div.os-container
                     ng-class="getOptionClass(option)"
                 )
                     span.os-button.os-select(ng-click="addToSelectedList(option)") +
-                    span.os-button.os-deselect(ng-click="addToDeselectedList(option)") -
+                    span.os-button.os-deselect(
+                                               ng-click="addToDeselectedList(option)"
+                                               ng-if="!multiSelect"
+                                               ) -
                     span.os-option-name(
                                         ng-bind="option.name"
                                         title="{{ option.name }}"
                                         )
-    div.os-chosen-list(ng-show="!showList && (optionsSelected.length!=0 || optionsDeselected.length!=0)")
-        ul
+    div.os-chosen-list(ng-show="!showList")
+        ul(ng-show="optionsSelected.length!=0")
             li(
                 ng-repeat="option in optionsSelected"
                 ng-click="removeFromList(option, true)"
@@ -35,7 +38,10 @@ div.os-container
                     ng-bind="option"
                     title="{{ option }}"
                 )
-        ul
+        ul(
+           ng-show="optionsDeselected.length!=0"
+           ng-if="!multiSelect"
+           )
             li(
                 ng-repeat="option in optionsDeselected"
                 ng-click="removeFromList(option, false)"
