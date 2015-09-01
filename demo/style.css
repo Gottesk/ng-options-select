@@ -1,0 +1,65 @@
+body {
+    font-family: 'Lato';
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(52, 57, 61);
+}
+.main-container {
+    box-sizing: border-box;
+
+    max-width: 1000px;
+    margin: auto;
+
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: flex;
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    align-content: space-around;
+    align-items: space-around;
+    flex-wrap: wrap;
+}
+.navbar {
+    background-color: rgb(39, 44, 47);
+    padding: 20px;
+
+    -webkit-box-flex: 1 1 100%;
+    -moz-box-flex: 1 1 100%;
+    -webkit-flex: 1 1 100%;
+    -ms-flex: 1 1 100%;
+    flex: 1 1 100%;
+}
+.navbar h1 {
+    margin: 0;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 300;
+    letter-spacing: 3px;
+    font-size: 1.1em;
+}
+.container {
+    padding: 20px;
+    box-sizing: border-box;
+
+    -webkit-box-flex: 1 1 300px;
+    -moz-box-flex: 1 1 300px;
+    -webkit-flex: 1 1 300px;
+    -ms-flex: 1 1 300px;
+    flex: 1 1 300px;
+}
+.container h2 {
+    margin: 20px 0;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 400;
+    letter-spacing: 3px;
+    font-size: 0.9em;
+}
+.os-chosen-list div {
+    margin-left: 0;
+    margin-right: 0;
+}

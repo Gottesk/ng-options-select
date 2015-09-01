@@ -7,38 +7,71 @@
 (function() {
     var angularOptionsSelect = angular.module('angularOptionsSelect', []);
 
-    angularOptionsSelect.directive('optionsSelect', ['$timeout',
-        function ($timeout) {
+    angularOptionsSelect.directive('optionsSelect', ['$document', '$timeout',
+        function ($document, $timeout) {
             return {
                 restrict: 'E',
                 scope: {
                     optionsData: '=optionsData',
                     optionsSelected: '=optionsSelected',
                     optionsDeselected: '=optionsDeselected',
-                    optionsPlaceholder: '@optionsPlaceholder'
+                    optionsPlaceholder: '@optionsPlaceholder',
+                    optionsSubmitPlaceholder: '@optionsSubmitPlaceholder' || 'OK'
                 },
-                template: '<div class="os-container"><div ng-click="toggleList()" ng-class="getHeaderClass()" class="os-header"><span ng-show="!showList">{{ optionsPlaceholder }}</span><span ng-show="showList">OK</span></div><div ng-show="showList" class="os-list-container"><div class="os-search"><div class="os-search-icon"><div></div><div></div></div><input ng-model="search.name" class="os-search-input"/></div><div class="os-list"><ul><li ng-repeat="option in optionsTempData | filter:search" ng-class="getOptionClass(option)" class="os-animate-repeat"><span ng-click="addToSelectedList(option)" class="os-button os-select">+</span><span ng-click="addToDeselectedList(option)" ng-if="!multiSelect" class="os-button os-deselect">-</span><span ng-bind="option.name" title="{{ option.name }}" class="os-option-name"></span></li></ul></div></div><div ng-show="!showList" class="os-chosen-list"><ul ng-show="optionsSelected.length!=0"><li ng-repeat="option in optionsSelected" ng-click="removeFromList(option, true)"><span class="os-list-icon os-plus-icon">+</span><span ng-bind="option" title="{{ option }}"></span></li></ul><ul ng-show="optionsDeselected.length!=0" ng-if="!multiSelect"><li ng-repeat="option in optionsDeselected" ng-click="removeFromList(option, false)"><span class="os-list-icon os-minus-icon">-</span><span ng-bind="option" title="{{ option }}"></span></li></ul></div></div>',
-                link: function (scope) {
+                template: '<div class="os-container"><div ng-click="toggleList()" ng-class="getHeaderClass()" class="os-header"><span ng-show="!showList">{{ optionsPlaceholder }}</span><span ng-show="showList">{{ optionsSubmitPlaceholder }}</span></div><div ng-show="showList" class="os-list-container"><div class="os-search"><div class="os-search-icon"><div></div><div></div></div><input ng-model="search.name" class="os-search-input"/></div><div class="os-list"><ul ng-if="!multiSelect"><li ng-repeat="option in optionsTempData | filter:search track by $index" ng-class="getOptionClass(option)" class="os-animate-repeat"><span ng-click="addToSelectedList(option)" class="os-button os-select">+</span><span ng-click="addToDeselectedList(option)" class="os-button os-deselect">-</span><span ng-bind="option.name" title="{{ option.name }}" class="os-option-name"></span></li></ul><ul ng-if="multiSelect"><li ng-repeat="option in optionsTempData | filter:search track by $index" ng-class="getOptionClass(option)" ng-click="addToSelectedList(option)" class="os-animate-repeat os-multi-option"><span ng-bind="option.name" title="{{ option.name }}" class="os-option-name"></span></li></ul></div></div><div ng-show="!showList" class="os-chosen-list"><div><ul ng-show="optionsSelected.length!=0" ng-if="!multiSelect"><li ng-repeat="option in optionsSelected track by $index" ng-click="removeFromList(option, true)"><span class="os-list-icon os-plus-icon">+</span><span ng-bind="option" title="{{ option }}"></span></li></ul><ul ng-show="optionsDeselected.length!=0" ng-if="!multiSelect"><li ng-repeat="option in optionsDeselected track by $index" ng-click="removeFromList(option, false)"><span class="os-list-icon os-minus-icon">-</span><span ng-bind="option" title="{{ option }}"></span></li></ul><ul ng-show="optionsSelected.length!=0" ng-if="multiSelect" class="os-multi-select-list"><li ng-repeat="option in optionsSelected track by $index" ng-click="removeFromList(option, true)"><span class="os-list-icon os-plus-icon">-</span><span ng-bind="option" title="{{ option }}"></span></li></ul></div></div></div>',
+                link: function (scope, element) {
+
+                    angular.element(element).on('mousedown', function(event) {
+                        event.stopPropagation();
+                    });
 
                     scope.showList = false;
                     scope.toggleList = function() {
                         scope.showList = !scope.showList;
+
+                        if (scope.showList) {
+
+                            var docMousedown = function () {
+                                    scope.showList = false;
+                                    $document.off('mousedown');
+                                    scope.$apply();
+                            };
+
+                            $document.on('mousedown', docMousedown);
+                        }
                     };
 
                     if (!scope.optionsDeselected) {
                         scope.multiSelect = true;
                     }
+                    if (!scope.optionsPlaceholder) {
+                        $timeout(function() {
+                            scope.optionsPlaceholder = 'Select options...';
+                            scope.$apply(scope.optionsPlaceholder);
+                        });
+
+                    }
+                    if (!scope.optionsSubmitPlaceholder) {
+                        $timeout(function() {
+                            scope.optionsSubmitPlaceholder = 'OK';
+                            scope.$apply(scope.optionsSubmitPlaceholder);
+                        });
+                    }
 
                     scope.optionsTempData = [];
 
                     if (scope.optionsData.length !== 0) {
-                        console.log('scope.optionsData', scope.optionsData);
                         for (var i=0; i<scope.optionsData.length; i++) {
                             var item = {
                                 name: scope.optionsData[i],
                                 selected: false,
                                 deselected: false
                             };
+                            if (scope.multiSelect) {
+                                for (var k=0; k<scope.optionsSelected.length; k++) {
+                                    if (scope.optionsSelected[k] == item.name) item.selected = true;
+                                }
+                            }
                             scope.optionsTempData.push(item);
                         }
                     }
@@ -67,11 +100,7 @@
                                 option.deselected = false;
                             }
                         }
-
-                        scope.optionsSelected = [];
-                        for (var i=0; i<scope.optionsTempData.length; i++) {
-                            if (scope.optionsTempData[i].selected) scope.optionsSelected.push(scope.optionsTempData[i].name);
-                        }
+                        scope.updateChosenLists();
                     };
 
                     scope.addToDeselectedList = function(option) {
@@ -87,9 +116,19 @@
                                 option.deselected = false;
                             }
                         }
-                        scope.optionsDeselected = [];
+                        scope.updateChosenLists();
+                    };
+
+                    scope.updateChosenLists = function() {
+                        scope.optionsSelected = [];
                         for (var i=0; i<scope.optionsTempData.length; i++) {
-                            if (scope.optionsTempData[i].deselected) scope.optionsDeselected.push(scope.optionsTempData[i].name);
+                            if (scope.optionsTempData[i].selected) scope.optionsSelected.push(scope.optionsTempData[i].name);
+                        }
+                        if (!scope.multiSelect) {
+                            scope.optionsDeselected = [];
+                            for (var i = 0; i < scope.optionsTempData.length; i++) {
+                                if (scope.optionsTempData[i].deselected) scope.optionsDeselected.push(scope.optionsTempData[i].name);
+                            }
                         }
                     };
 
@@ -115,15 +154,3 @@
         }]
     );
 })();
-
-getIndex = function(arr, obj, attrName) {
-    for(var i=0; i<arr.length; i++) {
-        if (attrName) {
-            if (arr[i][attrName] == obj[attrName]) return i;
-        }
-        else {
-            if (arr[i] == obj) return i;
-        }
-    }
-    return -1;
-};

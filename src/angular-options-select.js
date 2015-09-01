@@ -7,38 +7,71 @@
 (function() {
     var angularOptionsSelect = angular.module('angularOptionsSelect', []);
 
-    angularOptionsSelect.directive('optionsSelect', ['$timeout',
-        function ($timeout) {
+    angularOptionsSelect.directive('optionsSelect', ['$document', '$timeout',
+        function ($document, $timeout) {
             return {
                 restrict: 'E',
                 scope: {
                     optionsData: '=optionsData',
                     optionsSelected: '=optionsSelected',
                     optionsDeselected: '=optionsDeselected',
-                    optionsPlaceholder: '@optionsPlaceholder'
+                    optionsPlaceholder: '@optionsPlaceholder',
+                    optionsSubmitPlaceholder: '@optionsSubmitPlaceholder' || 'OK'
                 },
                 template: '{html}',
-                link: function (scope) {
+                link: function (scope, element) {
+
+                    angular.element(element).on('mousedown', function(event) {
+                        event.stopPropagation();
+                    });
 
                     scope.showList = false;
                     scope.toggleList = function() {
                         scope.showList = !scope.showList;
+
+                        if (scope.showList) {
+
+                            var docMousedown = function () {
+                                    scope.showList = false;
+                                    $document.off('mousedown');
+                                    scope.$apply();
+                            };
+
+                            $document.on('mousedown', docMousedown);
+                        }
                     };
 
                     if (!scope.optionsDeselected) {
                         scope.multiSelect = true;
                     }
+                    if (!scope.optionsPlaceholder) {
+                        $timeout(function() {
+                            scope.optionsPlaceholder = 'Select options...';
+                            scope.$apply(scope.optionsPlaceholder);
+                        });
+
+                    }
+                    if (!scope.optionsSubmitPlaceholder) {
+                        $timeout(function() {
+                            scope.optionsSubmitPlaceholder = 'OK';
+                            scope.$apply(scope.optionsSubmitPlaceholder);
+                        });
+                    }
 
                     scope.optionsTempData = [];
 
                     if (scope.optionsData.length !== 0) {
-                        console.log('scope.optionsData', scope.optionsData);
                         for (var i=0; i<scope.optionsData.length; i++) {
                             var item = {
                                 name: scope.optionsData[i],
                                 selected: false,
                                 deselected: false
                             };
+                            if (scope.multiSelect) {
+                                for (var k=0; k<scope.optionsSelected.length; k++) {
+                                    if (scope.optionsSelected[k] == item.name) item.selected = true;
+                                }
+                            }
                             scope.optionsTempData.push(item);
                         }
                     }
@@ -67,11 +100,7 @@
                                 option.deselected = false;
                             }
                         }
-
-                        scope.optionsSelected = [];
-                        for (var i=0; i<scope.optionsTempData.length; i++) {
-                            if (scope.optionsTempData[i].selected) scope.optionsSelected.push(scope.optionsTempData[i].name);
-                        }
+                        scope.updateChosenLists();
                     };
 
                     scope.addToDeselectedList = function(option) {
@@ -87,9 +116,19 @@
                                 option.deselected = false;
                             }
                         }
-                        scope.optionsDeselected = [];
+                        scope.updateChosenLists();
+                    };
+
+                    scope.updateChosenLists = function() {
+                        scope.optionsSelected = [];
                         for (var i=0; i<scope.optionsTempData.length; i++) {
-                            if (scope.optionsTempData[i].deselected) scope.optionsDeselected.push(scope.optionsTempData[i].name);
+                            if (scope.optionsTempData[i].selected) scope.optionsSelected.push(scope.optionsTempData[i].name);
+                        }
+                        if (!scope.multiSelect) {
+                            scope.optionsDeselected = [];
+                            for (var i = 0; i < scope.optionsTempData.length; i++) {
+                                if (scope.optionsTempData[i].deselected) scope.optionsDeselected.push(scope.optionsTempData[i].name);
+                            }
                         }
                     };
 
@@ -115,15 +154,3 @@
         }]
     );
 })();
-
-getIndex = function(arr, obj, attrName) {
-    for(var i=0; i<arr.length; i++) {
-        if (attrName) {
-            if (arr[i][attrName] == obj[attrName]) return i;
-        }
-        else {
-            if (arr[i] == obj) return i;
-        }
-    }
-    return -1;
-};

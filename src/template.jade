@@ -4,7 +4,7 @@ div.os-container
                   ng-class="getHeaderClass()"
                   )
         span(ng-show="!showList") {{ optionsPlaceholder }}
-        span(ng-show="showList") OK
+        span(ng-show="showList") {{ optionsSubmitPlaceholder }}
     div.os-list-container(ng-show="showList")
         div.os-search
             div.os-search-icon
@@ -12,42 +12,71 @@ div.os-container
                 div
             input.os-search-input(ng-model="search.name")
         div.os-list
-            ul
+            ul(ng-if="!multiSelect")
                 li(
-                    ng-repeat="option in optionsTempData | filter:search"
+                    ng-repeat="option in optionsTempData | filter:search track by $index"
                     class="os-animate-repeat"
                     ng-class="getOptionClass(option)"
                 )
                     span.os-button.os-select(ng-click="addToSelectedList(option)") +
-                    span.os-button.os-deselect(
-                                               ng-click="addToDeselectedList(option)"
-                                               ng-if="!multiSelect"
-                                               ) -
+                    span.os-button.os-deselect(ng-click="addToDeselectedList(option)") -
                     span.os-option-name(
                                         ng-bind="option.name"
                                         title="{{ option.name }}"
                                         )
+            ul(
+            ng-if="multiSelect"
+            )
+                li(
+                ng-repeat="option in optionsTempData | filter:search track by $index"
+                class="os-animate-repeat os-multi-option"
+                ng-class="getOptionClass(option)"
+                ng-click="addToSelectedList(option)"
+                )
+                    span.os-option-name(
+                    ng-bind="option.name"
+                    title="{{ option.name }}"
+                    )
+
     div.os-chosen-list(ng-show="!showList")
-        ul(ng-show="optionsSelected.length!=0")
-            li(
-                ng-repeat="option in optionsSelected"
+        div
+            ul(
+               ng-show="optionsSelected.length!=0"
+               ng-if="!multiSelect"
+               )
+                li(
+                    ng-repeat="option in optionsSelected track by $index"
+                    ng-click="removeFromList(option, true)"
+                )
+                    span.os-list-icon.os-plus-icon +
+                    span(
+                        ng-bind="option"
+                        title="{{ option }}"
+                    )
+            ul(
+               ng-show="optionsDeselected.length!=0"
+               ng-if="!multiSelect"
+               )
+                li(
+                    ng-repeat="option in optionsDeselected track by $index"
+                    ng-click="removeFromList(option, false)"
+                )
+                    span.os-list-icon.os-minus-icon -
+                    span(
+                        ng-bind="option"
+                        title="{{ option }}"
+                    )
+            ul(
+               ng-show="optionsSelected.length!=0"
+               ng-if="multiSelect"
+               class="os-multi-select-list"
+               )
+                li(
+                ng-repeat="option in optionsSelected track by $index"
                 ng-click="removeFromList(option, true)"
-            )
-                span.os-list-icon.os-plus-icon +
-                span(
+                )
+                    span.os-list-icon.os-plus-icon -
+                    span(
                     ng-bind="option"
                     title="{{ option }}"
-                )
-        ul(
-           ng-show="optionsDeselected.length!=0"
-           ng-if="!multiSelect"
-           )
-            li(
-                ng-repeat="option in optionsDeselected"
-                ng-click="removeFromList(option, false)"
-            )
-                span.os-list-icon.os-minus-icon -
-                span(
-                    ng-bind="option"
-                    title="{{ option }}"
-                )
+                    )
