@@ -1,7 +1,7 @@
 # ng-options-select
 AngularJS directive for select and deselect options (returns two arrays)
 
-<strong>See example in demo folder.</strong>
+<strong>See example in DEMO folder.</strong>
 
 For bug report or feature request please <a href="https://github.com/Gottesk/ng-options-select/issues/new">create a new issue</a>. For faster response provide steps to reproduce/versions with a jsfiddle from here.
 
