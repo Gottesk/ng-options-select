@@ -16,10 +16,25 @@
                     optionsSelected: '=optionsSelected',
                     optionsDeselected: '=optionsDeselected',
                     optionsPlaceholder: '@optionsPlaceholder',
-                    optionsSubmitPlaceholder: '@optionsSubmitPlaceholder' || 'OK'
+                    optionsSubmitPlaceholder: '@optionsSubmitPlaceholder',
+                    optionsDisabled: '=optionsDisabled'
                 },
                 template: '{html}',
                 link: function (scope, element) {
+
+                    scope.$watch('optionsDisabled', function () {
+                        var elem = angular.element(element);
+                        if (scope.optionsDisabled) {
+                            scope.showList = false;
+                            scope.optionsSelected = [];
+                            if (!scope.multiSelect) {
+                                scope.optionsDeselected = [];
+                            }
+                            elem.addClass('os-disabled');
+                        } else {
+                            elem.removeClass('os-disabled');
+                        }
+                    });
 
                     angular.element(element).on('mousedown', function(event) {
                         event.stopPropagation();
@@ -27,17 +42,19 @@
 
                     scope.showList = false;
                     scope.toggleList = function() {
-                        scope.showList = !scope.showList;
+                        if (!scope.optionsDisabled) {
+                            scope.showList = !scope.showList;
 
-                        if (scope.showList) {
+                            if (scope.showList) {
 
-                            var docMousedown = function () {
+                                var docMousedown = function () {
                                     scope.showList = false;
+                                    scope.search = '';
                                     $document.off('mousedown');
                                     scope.$apply();
-                            };
-
-                            $document.on('mousedown', docMousedown);
+                                };
+                                $document.on('mousedown', docMousedown);
+                            }
                         }
                     };
 

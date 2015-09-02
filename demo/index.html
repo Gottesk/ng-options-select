@@ -24,6 +24,9 @@
                     $scope.languages = ["Afar", "Albanian", "Arabic", "Armenian", "Azerbaijani", "Belarusian", "Bosnian", "Bulgarian", "Catalan", "Chinese", "Croatian", "Czech", "Dagban", "Danish", "Dari", "Dutch", "English", "Estonian", "Finnish", "French", "Georgian", "German", "Greek", "Hindi", "Hungarian", "Icelandic", "Indonesian", "Irish", "Italian", "Japanese", "Kazakh", "Kimbundu", "Kissi", "Khoisan", "Korean", "Kurdish", "Kyrgyz", "Latin", "Latvian", "Lithuanian", "Macedonian", "Malay", "Moldovan", "Mongolian", "Nepali", "Norwegian", "Ossetian", "Persian", "Polish", "Portuguese", "Romanian", "Russian", "Serbian", "Sinhala", "Slovak", "Somali", "Spanish", "Swedish", "Tajik", "Tebu", "Thai", "Tonga", "Tshiluba", "Turkish", "Turkmen", "Ukrainian:", "Urdu", "Uzbek", "Vietnamese", "Welsh", "Zulu"];
 
                     $scope.languages_selected = [];
+
+                    $scope.cars = [];
+                    $scope.cars_selected = [];
                 }
             ]);
     </script>
@@ -39,16 +42,23 @@
         <div class="container">
             <h2>Include/exclude select</h2>
             <options-select options-data="countries"
-                    options-selected="countries_selected"
-                    options-deselected="countries_deselected"
-                    options-placeholder="Choose countries">
+                            options-selected="countries_selected"
+                            options-deselected="countries_deselected"
+                            options-placeholder="Choose countries">
             </options-select>
         </div>
         <div class="container">
             <h2>Multi select</h2>
             <options-select options-data="languages"
-                    options-selected="languages_selected"
-                    options-placeholder="Choose languages">
+                            options-selected="languages_selected"
+                            options-placeholder="Choose languages">
+            </options-select>
+        </div>
+        <div class="container">
+            <h2>Disabled select</h2>
+            <options-select options-data="cars"
+                            options-selected="cars_selected"
+                            options-disabled="true">
             </options-select>
         </div>
     </div>

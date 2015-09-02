@@ -16,10 +16,25 @@
                     optionsSelected: '=optionsSelected',
                     optionsDeselected: '=optionsDeselected',
                     optionsPlaceholder: '@optionsPlaceholder',
-                    optionsSubmitPlaceholder: '@optionsSubmitPlaceholder' || 'OK'
+                    optionsSubmitPlaceholder: '@optionsSubmitPlaceholder',
+                    optionsDisabled: '=optionsDisabled'
                 },
-                template: '<div class="os-container"><div ng-click="toggleList()" ng-class="getHeaderClass()" class="os-header"><span ng-show="!showList">{{ optionsPlaceholder }}</span><span ng-show="showList">{{ optionsSubmitPlaceholder }}</span></div><div ng-show="showList" class="os-list-container"><div class="os-search"><div class="os-search-icon"><div></div><div></div></div><input ng-model="search.name" class="os-search-input"/></div><div class="os-list"><ul ng-if="!multiSelect"><li ng-repeat="option in optionsTempData | filter:search track by $index" ng-class="getOptionClass(option)" class="os-animate-repeat"><span ng-click="addToSelectedList(option)" class="os-button os-select">+</span><span ng-click="addToDeselectedList(option)" class="os-button os-deselect">-</span><span ng-bind="option.name" title="{{ option.name }}" class="os-option-name"></span></li></ul><ul ng-if="multiSelect"><li ng-repeat="option in optionsTempData | filter:search track by $index" ng-class="getOptionClass(option)" ng-click="addToSelectedList(option)" class="os-animate-repeat os-multi-option"><span ng-bind="option.name" title="{{ option.name }}" class="os-option-name"></span></li></ul></div></div><div ng-show="!showList" class="os-chosen-list"><div><ul ng-show="optionsSelected.length!=0" ng-if="!multiSelect"><li ng-repeat="option in optionsSelected track by $index" ng-click="removeFromList(option, true)"><span class="os-list-icon os-plus-icon">+</span><span ng-bind="option" title="{{ option }}"></span></li></ul><ul ng-show="optionsDeselected.length!=0" ng-if="!multiSelect"><li ng-repeat="option in optionsDeselected track by $index" ng-click="removeFromList(option, false)"><span class="os-list-icon os-minus-icon">-</span><span ng-bind="option" title="{{ option }}"></span></li></ul><ul ng-show="optionsSelected.length!=0" ng-if="multiSelect" class="os-multi-select-list"><li ng-repeat="option in optionsSelected track by $index" ng-click="removeFromList(option, true)"><span class="os-list-icon os-plus-icon">-</span><span ng-bind="option" title="{{ option }}"></span></li></ul></div></div></div>',
+                template: '<div class="os-container"><div ng-click="toggleList()" ng-class="getHeaderClass()" class="os-header"><span ng-show="!showList">{{ optionsPlaceholder }}</span><span ng-show="showList">{{ optionsSubmitPlaceholder }}</span></div><div ng-show="showList" class="os-list-container"><div class="os-search"><div class="os-search-icon"><div></div><div></div></div><input ng-model="search" class="os-search-input"/></div><div class="os-list"><ul ng-if="!multiSelect"><li ng-repeat="option in optionsTempData | filter:search track by $index" ng-class="getOptionClass(option)" class="os-animate-repeat"><span ng-click="addToSelectedList(option)" class="os-button os-select">+</span><span ng-click="addToDeselectedList(option)" class="os-button os-deselect">-</span><span ng-bind="option.name" title="{{ option.name }}" class="os-option-name"></span></li></ul><ul ng-if="multiSelect"><li ng-repeat="option in optionsTempData | filter:search track by $index" ng-class="getOptionClass(option)" ng-click="addToSelectedList(option)" class="os-animate-repeat os-multi-option"><span ng-bind="option.name" title="{{ option.name }}" class="os-option-name"></span></li></ul></div></div><div ng-show="!showList" class="os-chosen-list"><div><ul ng-show="optionsSelected.length!=0" ng-if="!multiSelect"><li ng-repeat="option in optionsSelected track by $index" ng-click="removeFromList(option, true)"><span class="os-list-icon os-plus-icon">+</span><span ng-bind="option" title="{{ option }}"></span></li></ul><ul ng-show="optionsDeselected.length!=0" ng-if="!multiSelect"><li ng-repeat="option in optionsDeselected track by $index" ng-click="removeFromList(option, false)"><span class="os-list-icon os-minus-icon">-</span><span ng-bind="option" title="{{ option }}"></span></li></ul><ul ng-show="optionsSelected.length!=0" ng-if="multiSelect" class="os-multi-select-list"><li ng-repeat="option in optionsSelected track by $index" ng-click="removeFromList(option, true)"><span class="os-list-icon os-plus-icon">-</span><span ng-bind="option" title="{{ option }}"></span></li></ul></div></div></div>',
                 link: function (scope, element) {
+
+                    scope.$watch('optionsDisabled', function () {
+                        var elem = angular.element(element);
+                        if (scope.optionsDisabled) {
+                            scope.showList = false;
+                            scope.optionsSelected = [];
+                            if (!scope.multiSelect) {
+                                scope.optionsDeselected = [];
+                            }
+                            elem.addClass('os-disabled');
+                        } else {
+                            elem.removeClass('os-disabled');
+                        }
+                    });
 
                     angular.element(element).on('mousedown', function(event) {
                         event.stopPropagation();
@@ -27,17 +42,19 @@
 
                     scope.showList = false;
                     scope.toggleList = function() {
-                        scope.showList = !scope.showList;
+                        if (!scope.optionsDisabled) {
+                            scope.showList = !scope.showList;
 
-                        if (scope.showList) {
+                            if (scope.showList) {
 
-                            var docMousedown = function () {
+                                var docMousedown = function () {
                                     scope.showList = false;
+                                    scope.search = '';
                                     $document.off('mousedown');
                                     scope.$apply();
-                            };
-
-                            $document.on('mousedown', docMousedown);
+                                };
+                                $document.on('mousedown', docMousedown);
+                            }
                         }
                     };
 
