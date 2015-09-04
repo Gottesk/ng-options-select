@@ -36,9 +36,6 @@
                         }
                     });
 
-                    angular.element(element).on('mousedown', function(event) {
-                        event.stopPropagation();
-                    });
 
                     scope.showList = false;
                     scope.toggleList = function() {
@@ -46,18 +43,26 @@
                             scope.showList = !scope.showList;
 
                             if (scope.showList) {
+                                $document.on('click', function(event){
+                                    var isClickedElementChildOfThis = element
+                                            .find(event.target)
+                                            .length > 0;
 
-                                var docMousedown = function () {
-                                    scope.showList = false;
-                                    scope.search = '';
-                                    $document.off('mousedown');
-                                    scope.$apply();
-                                };
-                                $document.on('mousedown', docMousedown);
+                                    if (isClickedElementChildOfThis)
+                                        return;
+
+                                    scope.$apply(function(){
+                                        scope.showList = false;
+                                        scope.search = '';
+                                    });
+                                });
                             }
                         }
                     };
 
+                    if (!scope.optionsSelected) {
+                        scope.optionsSelected = [];
+                    }
                     if (!scope.optionsDeselected) {
                         scope.multiSelect = true;
                     }
